@@ -1,6 +1,17 @@
+import errno
+
 from bs4 import BeautifulSoup as bs
 from pprint import pprint
-import requests
+import requests, re, os
+from urllib.request import urlretrieve
+
+try:
+    if not (os.path.isdir('image')):    # isdir(path), 존재하는 디렉터리면 True 반환
+        os.makedirs(os.path.join('image'))    # dir 생성,
+except OSError as e:
+    if e.errno != errno.EEXIST:
+        print("폴더 생성 실패")
+        exit()
 
 # 웹페이지 열고 소스코드 읽기
 html = requests.get('http://comic.naver.com/webtoon/weekday.nhn')
@@ -22,4 +33,6 @@ for li in li_list:
     img = li.find('img')
     title = img['title']
     img_src = img['src']
+    title = re.sub('[^0-9a-zA-Zㄱ-힗]', '', title)    # 해당 영역 글자 아니면 ''로 치환
     print(title, img_src)
+    urlretrieve(img_src, './image/'+title+'jpg')    # 주소, 파일경로+파일명+확장자
